@@ -1,0 +1,80 @@
+#include "ALL_DEFINE.h"
+
+// SysTick_count 现在由HAL的uwTick提供，在sys.h中通过宏定义映射
+_st_Mpu MPU6050;   //MPU6050原始数据
+_st_AngE Angle;    //当前角度状态
+_st_Remote Remote = {1000,1000,1000,1000,1000,1000,1000,1000}; //遥控器通道值，初始中位
+
+_st_ALL_flag ALL_flag; //系统标志位，各种状态标志
+
+PidObject pidRateX; //角速度PID控制
+PidObject pidRateY;
+PidObject pidRateZ;
+
+PidObject pidPitch; //角度PID控制
+PidObject pidRoll;
+PidObject pidYaw;
+
+void pid_param_Init(void); //PID参数初始化，若要修改PID参数，可以在这里修改，因为已经放到这里了，方便直接改飞控
+
+int16_t motor_PWM_Value[4];
+
+void ALL_Init(void)
+{
+	USB_HID_Init();   		//USB初始化
+
+	IIC_Init();             //I2C初始化
+
+	pid_param_Init();       //PID参数初始化
+
+	delay_ms(200);
+	MpuInit();              //MPU6050初始化
+//----------------------------------------
+// 水平校准就是掉电保存，只需要校准一次，需要每次开机之前已经校准一次了，校准值自动保存到MCU的FLASH中
+// 校准，水平校准 打开飞机，静止5秒作为静止参考，等待时间到就自动写入水平校准
+//	delay_ms(5000);MpuGetOffset();
+//----------------------------------------
+//	USART1_Config(); //串口调试
+
+	NRF24L01_init();				//2.4G遥控器通信初始化
+
+	TIM2_PWM_Config();			//4路PWM初始化
+	TIM3_PWM_Config();      //LED PWM初始化
+
+	// 强制手动设置所有LED熄灭，保证初始状态正确
+	// 原理图确认：LED1=PA6(TIM3_CH1), LED2=PA7(TIM3_CH2), LED3=PB0(TIM3_CH3), LED4=PB1(TIM3_CH4)
+	// 低电平点亮：CCR=999 = 几乎永远高电平 = 熄灭
+	TIM3->CCR1 = 999;  // PA6
+	TIM3->CCR2 = 999;  // PA7
+	TIM3->CCR3 = 999;  // PB0
+	TIM3->CCR4 = 999;  // PB1
+
+	// 强制初始化为闪烁状态（未解锁）
+	LED.status = AllFlashLight;
+	LED.FlashTime = 300;
+
+	// TIM1_Config 移到 main.c 最后，所有初始化完成后才启动中断
+	// TIM1_Config();					//系统中断调度初始化
+
+}
+
+////PID可以在这里改
+void pid_param_Init(void)//PID参数初始化
+{
+	pidRateX.kp = 3.f;
+	pidRateY.kp = 3.f;
+	pidRateZ.kp = 6.0f;
+
+//	pidRateX.ki = 0.05f;
+//	pidRateY.ki = 0.05f;
+//	pidRateZ.ki = 0.02f;
+
+	pidRateX.kd = 0.24f;
+	pidRateY.kd = 0.24f;
+	pidRateZ.kd = 0.3f;
+
+	pidPitch.kp = 10.0f;
+	pidRoll.kp = 10.0f;
+	pidYaw.kp = 8.0f;
+
+}
