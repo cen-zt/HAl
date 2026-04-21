@@ -96,7 +96,7 @@ int8_t MpuInit(void) //��ʼ��
 	date += IIC_Write_One_Byte(MPU6050_ADDRESS, ACCEL_CONFIG, 0x09);//+-4G
 	retry_cnt++;
 	}
-	while(date != SUCCESS && retry_cnt < 10);  // 最多重试10次，避免卡死
+	while(date != SUCCESS );  // 一直尝试通信，直到成功
 	date = IIC_Read_One_Byte(MPU6050_ADDRESS, 0x75);
 	if(date!= MPU6050_PRODUCT_ID)
 		return FAILED;		
