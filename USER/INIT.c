@@ -41,14 +41,6 @@ void ALL_Init(void)
 	TIM2_PWM_Config();			//4路PWM初始化
 	TIM3_PWM_Config();      //LED PWM初始化
 
-	// 强制手动设置所有LED熄灭，保证初始状态正确
-	// 原理图确认：LED1=PA6(TIM3_CH1), LED2=PA7(TIM3_CH2), LED3=PB0(TIM3_CH3), LED4=PB1(TIM3_CH4)
-	// 低电平点亮：CCR=999 = 几乎永远高电平 = 熄灭
-	TIM3->CCR1 = 999;  // PA6
-	TIM3->CCR2 = 999;  // PA7
-	TIM3->CCR3 = 999;  // PB0
-	TIM3->CCR4 = 999;  // PB1
-
 	// 强制初始化为闪烁状态（未解锁）
 	LED.status = AllFlashLight;
 	LED.FlashTime = 300;
