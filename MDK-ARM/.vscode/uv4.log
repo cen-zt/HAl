@@ -1,0 +1,15 @@
+*** Using Compiler 'V5.06 update 5 (build 528)', folder: 'D:\keil\ARM\ARMCC\Bin'
+Build target 'diandeng'
+compiling main.c...
+../Core/Src/main.c(127): warning:  #223-D: function "cycleCounterInit" declared implicitly
+    cycleCounterInit();
+../Core/Src/main.c(129): warning:  #223-D: function "ADC_DMA_Init" declared implicitly
+    ADC_DMA_Init();
+../Core/Src/main.c(134): warning:  #223-D: function "TIM1_Config" declared implicitly
+    TIM1_Config();
+../Core/Src/main.c: 3 warnings, 0 errors
+linking...
+Program Size: Code=32474 RO-data=590 RW-data=560 ZI-data=4904  
+FromELF: creating hex file...
+"diandeng\diandeng.axf" - 0 Error(s), 3 Warning(s).
+Build Time Elapsed:  00:00:01

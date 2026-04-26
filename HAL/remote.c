@@ -2,9 +2,6 @@
  *@title Remote Control;
  *@brief remote data process on polling every 10ms.
  *@brief remote control on interrupt every 24ms
- *@time  2016.11.21
- *@editor小南&zin
- *飞控爱好QQ群551883670,邮箱759421287@qq.com
  ******************************************************************/
 #include "ALL_DATA.h"
 #include "nrf24l01.h"

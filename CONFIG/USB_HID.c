@@ -1,9 +1,6 @@
 /**************************************************************
  *
  * @brief
-	   ZIN-7标准飞控
-		 黑马技术群551883670
-		 店铺地址https://shop297229812.taobao.com/shop/view_shop.htm?mytmenu=mdianpu&user_number_id=2419305772
  ***************************************************************/
 #include "stm32f1xx_hal.h"
 #include "USB_HID.h"

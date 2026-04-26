@@ -12,8 +12,29 @@
   * This software is licensed under terms that can be found in the LICENSE file
   * in the root directory of this software component.
   * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
   ******************************************************************************
+  */
+ /**  
+  *首先core是cubemx生成的HAL代码，包括所处的main，USER目录下也有一个main，不过未作使用也不会影响功能。
+  * USER是上层的应用层
+  * HAL则是涉及到飞控的主要文件，包括PID控制，对应遥控信号的解析，上位机的通信
+  * MATH则是涉及到算法方面的东西，比如姿态解算，PID，滤波，和一些数学工具
+  * HARDWARE就是一些硬件的驱动方面，比如MPU6050（初始化+数据处理），LED和NRF24L01等
+  * config即使对于外设的配置（I2C,SPI,TIM，一些冲突的就在core里面生成了，比如GPIO）
+  * 
+  * 
+  * 上电初始化：HAL_Init → SystemClock_Config → 外设HAL初始化→ USB_HID → I2C → PID参数整定 → MPU6050
+  → NRF24L01 → TIM2/3 PWM → LED(闪烁=未解锁)→ 最后启动TIM1 3ms中断
+  *
+  *
+  * 对于时间有着严格要求的闭环任务，比如姿态结算和飞行控制，放在TIM1的3ms中断回调里，确保定时执行
+  * 而对于普通的信号收发和LED状态更新等不太严格的任务，放在主循环里轮询执行，避免中断过多导致的卡顿，大约100ms执行一次
+  * 
+  * 
+  * 飞控的核心任务在main的RUN函数里（详见下方HAL_TIM_PeriodElapsedCallback回调），3ms执行一次，
+  * 包含：读取MPU6050数据 → 姿态解算 → 遥控信号解析 → PID计算 → 输出PWM控制电机
+  * 数据流向：MPU6050六轴 → I2C → 主控 → 互补滤波/四元数 → 串级PID → 混控矩阵 → 电机PWM
+  * 具体的（MPU6050 → GetAngle → Angle结构体 → FlightPidControl → MotorControl → PWM输出）
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
@@ -46,7 +67,7 @@ extern _st_Mpu MPU6050;
 extern _st_AngE Angle;
 
 // 提前声明RUN函数
-void RUN(void);
+void RUN(void);//飞控主循环，每3ms调用一次，飞控的核心任务
 
 /* USER CODE END PV */
 
@@ -117,7 +138,7 @@ int main(void)
   MX_DMA_Init();
   MX_TIM1_Init();
   MX_TIM2_Init();
-  MX_TIM3_Init();
+  MX_TIM3_Init();//PWM控制的LED灯
   MX_USART1_UART_Init();
   MX_USB_DEVICE_Init();
   MX_ADC1_Init();
@@ -140,16 +161,9 @@ int main(void)
   while (1)
   {
 
-    // 🔍 测试：强制熄灭所有LED（PB0,PB1,PA6,PA7）
-//    // 原理图：LED一端接VBAT，低电平点亮 → CCR=999 = 永远高电平 = 熄灭
-//    TIM3->CCR1 = 999;  // PA6 (LED1)
-//    TIM3->CCR2 = 999;  // PA7 (LED2)
-//    TIM3->CCR3 = 999;  // PB0 (LED3)
-//    TIM3->CCR4 = 999;  // PB1 (LED4)
-
-		   ANTO_polling();
-		   PilotLED();
-       Usb_Hid_Send();
+		   ANTO_polling();//数据传输轮询，用于与地面站和上位机通信，发送飞行状态和接收PID参数等
+		   PilotLED();//更新LED状态
+       Usb_Hid_Send();//与ANTO配套的通信协议包括下面那个
        Usb_Hid_Receive();
 
     /* USER CODE END WHILE */
@@ -218,14 +232,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   }
 }
 
-// 飞控主循环，每3ms调用一次
+// 飞控主循环，每3ms调用一次，飞控的核心任务
 void RUN(void)
 {
-    MpuGetData();
-    GetAngle(&MPU6050, &Angle, 0.003f);
-    RC_Analy();
-    FlightPidControl(0.003f);
-    MotorControl();
+    MpuGetData();//读取MPU6050数据
+    GetAngle(&MPU6050, &Angle, 0.003f);//陀螺仪+加速度计数据融合计算姿态角，参数0.003f是周期3ms
+    RC_Analy();//解析遥控器数据
+    FlightPidControl(0.003f);//飞控串级PID计算，参数0.003f是周期3ms
+    MotorControl();//输出PWM控制电机
 }
 
 /* USER CODE END 4 */

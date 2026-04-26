@@ -2,9 +2,6 @@
  *@title LED system
  *@brief flight light
  *@brief
- *@time  2016.10.19
- *@editorCui & zin
- *技术交流QQ群551883670，邮箱759421287@qq.com
  ******************************************************************/
 #include "stm32f1xx_hal.h"
 #include "LED.h"
