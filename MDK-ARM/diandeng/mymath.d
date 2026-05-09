@@ -54,6 +54,7 @@ diandeng\mymath.o: ../HAL/Remote.h
 diandeng\mymath.o: ../HAL/control.h
 diandeng\mymath.o: ../MATH/pid.h
 diandeng\mymath.o: D:\keil\ARM\ARMCC\Bin\..\include\stdbool.h
+diandeng\mymath.o: ../HARDWARE/flow.h
 diandeng\mymath.o: ../MATH/myMath.h
 diandeng\mymath.o: ../CONFIG/USB_HID.h
 diandeng\mymath.o: D:\keil\ARM\ARMCC\Bin\..\include\math.h

@@ -22,12 +22,23 @@ Dialog DLL:      TCM.DLL V1.32.0.0
  
 <h2>Project:</h2>
 D:\STM32CubeMX\wenjian\diandeng\MDK-ARM\diandeng.uvprojx
-Project File Date:  04/21/2026
+Project File Date:  04/28/2026
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'D:\keil\ARM\ARMCC\Bin'
 Build target 'diandeng'
-"diandeng\diandeng.axf" - 0 Error(s), 0 Warning(s).
+compiling pid.c...
+compiling INIT.c...
+..\USER\INIT.c(50): warning:  #223-D: function "TIM2_PWM_Config" declared implicitly
+  	TIM2_PWM_Config();			//4路PWM初始�?
+..\USER\INIT.c(51): warning:  #223-D: function "TIM3_PWM_Config" declared implicitly
+  	TIM3_PWM_Config();      //LED PWM初始�?
+..\USER\INIT.c: 2 warnings, 0 errors
+compiling control.c...
+linking...
+Program Size: Code=36390 RO-data=626 RW-data=720 ZI-data=5232  
+FromELF: creating hex file...
+"diandeng\diandeng.axf" - 0 Error(s), 2 Warning(s).
 
 <h2>Software Packages used:</h2>
 

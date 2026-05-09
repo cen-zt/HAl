@@ -54,5 +54,6 @@ diandeng\main_1.o: ../HAL/Remote.h
 diandeng\main_1.o: ../HAL/control.h
 diandeng\main_1.o: ../MATH/pid.h
 diandeng\main_1.o: D:\keil\ARM\ARMCC\Bin\..\include\stdbool.h
+diandeng\main_1.o: ../HARDWARE/flow.h
 diandeng\main_1.o: ../MATH/myMath.h
 diandeng\main_1.o: ../CONFIG/USB_HID.h

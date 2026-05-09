@@ -59,6 +59,7 @@
 "diandeng\led.o"
 "diandeng\mpu6050.o"
 "diandeng\nrf24l01.o"
+"diandeng\flow.o"
 --strict --scatter "diandeng\diandeng.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

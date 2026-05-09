@@ -47,7 +47,9 @@ typedef struct
 	uint16_t AUX1;
 	uint16_t AUX2;
 	uint16_t AUX3;
-	uint16_t AUX4;	
+	uint16_t AUX4;
+	float roll_offset;
+	float pitch_offset;
 }_st_Remote;
 
 
@@ -72,9 +74,11 @@ typedef volatile struct
 
 typedef volatile struct
 {
-	uint8_t unlock;
-	
-
+	uint8_t unlock:1;
+	uint8_t height_lock:1;
+	uint8_t take_off:1;
+	uint8_t take_down:1;
+	uint8_t flow_control:1;
 }_st_ALL_flag;
 
 
@@ -94,9 +98,15 @@ extern	PidObject pidPitch;
 extern	PidObject pidRoll;
 extern	PidObject pidYaw;
 
+extern	PidObject pidHeightRate;
+extern	PidObject pidHeightHigh;
 
+extern  PidObject pidPositionX;
+extern  PidObject pidPositionY;
+
+extern PidObject pidPosRateX;
+extern PidObject pidPosRateY;
 
 extern int16_t motor_PWM_Value[4];
 
 #endif
-

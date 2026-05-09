@@ -70,7 +70,7 @@
 #define PROCESS_60 60
 
 
-#define CHECK_100 100 //Ð£Ñé
+#define CHECK_100 100 //Ð£ï¿½ï¿½
 #define CHECK_101 101
 #define CHECK_102 102
 #define CHECK_103 103
@@ -84,7 +84,7 @@
 #define CALIBRATION_114 114
 #define CALIBRATION_115 115 
 
-#define EXIT_255 255  //ÍË³ö
+#define EXIT_255 255  //ï¿½Ë³ï¿½
 #define EXIT_254 254
 #define EXIT_253 253
 #define EXIT_252 252
@@ -92,6 +92,8 @@
 #define EXIT_250 250
 
 extern void FlightPidControl(float FightControlTime);
+extern void HeightPidControl(float dt);
+extern void FlowPidControl(float dt);
 extern void MotorControl(void);
 #endif
 

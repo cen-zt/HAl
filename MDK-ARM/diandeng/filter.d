@@ -56,6 +56,7 @@ diandeng\filter.o: ../HAL/Remote.h
 diandeng\filter.o: ../HAL/control.h
 diandeng\filter.o: ../MATH/pid.h
 diandeng\filter.o: D:\keil\ARM\ARMCC\Bin\..\include\stdbool.h
+diandeng\filter.o: ../HARDWARE/flow.h
 diandeng\filter.o: ../MATH/myMath.h
 diandeng\filter.o: ../CONFIG/USB_HID.h
 diandeng\filter.o: D:\keil\ARM\ARMCC\Bin\..\include\math.h

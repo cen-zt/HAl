@@ -233,13 +233,45 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 }
 
 // 飞控主循环，每3ms调用一次，飞控的核心任务
+// 多速率调度：3ms/6ms/24ms 分级执行
 void RUN(void)
 {
-    MpuGetData();//读取MPU6050数据
-    GetAngle(&MPU6050, &Angle, 0.003f);//陀螺仪+加速度计数据融合计算姿态角，参数0.003f是周期3ms
-    RC_Analy();//解析遥控器数据
-    FlightPidControl(0.003f);//飞控串级PID计算，参数0.003f是周期3ms
-    MotorControl();//输出PWM控制电机
+    static uint8_t cnt_3ms = 0;
+    static uint8_t cnt_6ms = 0;
+    static uint8_t cnt_24ms = 0;
+
+    cnt_3ms++;
+    cnt_6ms++;
+    cnt_24ms++;
+
+    //----------------- 24ms任务 -----------------
+    if(cnt_24ms>=8)
+    {
+        cnt_24ms = 0;
+        flow_data_sins();
+        FlowPidControl(0.024);
+    }
+
+    //----------------- 3ms任务 -----------------
+    if(cnt_3ms == 1)
+    {
+        cnt_3ms = 0;
+        MpuGetData();//读取MPU6050数据
+        GetAngle(&MPU6050, &Angle, 0.003f);//姿态角计算
+        RC_Analy();//解析遥控器数据
+        FlightPidControl(0.003f);//飞控串级PID计算
+        MotorControl();//输出PWM控制电机
+    }
+
+    //----------------- 6ms任务 -----------------
+    if(cnt_6ms == 2)
+    {
+        cnt_6ms = 0;
+        flow_get_data();//读取光流数据 - 先读数据再计算
+        HeightPidControl(0.006f);//高度控制
+			static uint16_t debug_high = 0;
+  debug_high = VL53L01_high;  // 用调试器观察这个值
+    }
 }
 
 /* USER CODE END 4 */

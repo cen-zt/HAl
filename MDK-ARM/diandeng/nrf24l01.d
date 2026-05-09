@@ -55,6 +55,7 @@ diandeng\nrf24l01.o: ../HAL/Remote.h
 diandeng\nrf24l01.o: ../HAL/control.h
 diandeng\nrf24l01.o: ../MATH/pid.h
 diandeng\nrf24l01.o: D:\keil\ARM\ARMCC\Bin\..\include\stdbool.h
+diandeng\nrf24l01.o: ../HARDWARE/flow.h
 diandeng\nrf24l01.o: ../MATH/myMath.h
 diandeng\nrf24l01.o: ../CONFIG/USB_HID.h
 diandeng\nrf24l01.o: D:\keil\ARM\ARMCC\Bin\..\include\string.h

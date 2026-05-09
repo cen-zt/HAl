@@ -65,5 +65,6 @@ diandeng\usb_hid.o: ../HAL/Remote.h
 diandeng\usb_hid.o: ../HAL/control.h
 diandeng\usb_hid.o: ../MATH/pid.h
 diandeng\usb_hid.o: D:\keil\ARM\ARMCC\Bin\..\include\stdbool.h
+diandeng\usb_hid.o: ../HARDWARE/flow.h
 diandeng\usb_hid.o: ../MATH/myMath.h
 diandeng\usb_hid.o: ../CONFIG/USB_HID.h

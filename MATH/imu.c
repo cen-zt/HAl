@@ -6,18 +6,15 @@
  * @param[in] updateError Set to TRUE if error should be calculated.
  *                        Set to False if pidSetError() has been used.
  * @return PID algorithm output
- *******************************************************************************************************/	
+ *******************************************************************************************************/
 #include "imu.h"
 #include "myMath.h"
 #include <math.h>
 
 
 static float NormAcc;
+static float NormAccz;
 
-//Õâ²¿·Ö³ÌÐòÕª×ÔÍøÉÏ£¬±¾ÈËÒ²²»ÊÇºÜÁË½â£¬ËùÒÔÐèÒªÊ¹ÓÃÕß×Ô¼º¸ù¾Ý×ÊÁÏÈ¥Ñ§Ï°¡£
-//Õâ²¿·ÖºÜÄÑ£¬ÐÂÊÖ¿ÉÒÔ×öµ½ÖªµÀÊäÈëÊÇÁùÖá´«¸ÐÆ÷Êý¾Ý£¬Êä³öÊÇÈýÖá½Ç¶È¼´¿É¡£
-
- 
 typedef volatile struct {
   float q0;
   float q1;
@@ -25,21 +22,21 @@ typedef volatile struct {
   float q3;
 } Quaternion;
  Quaternion NumQ = {1, 0, 0, 0};
- 
+
 	 struct V{
 				float x;
 				float y;
 				float z;
 				};
-	
-volatile	 struct V GyroIntegError = {0}; 
-	 
+
+volatile	 struct V GyroIntegError = {0};
+
 void imu_rest(void)
 {
 	NumQ.q0 =1;
 	NumQ.q1 = 0;
 	NumQ.q2 = 0;
-	NumQ.q3 = 0;	
+	NumQ.q3 = 0;
 	GyroIntegError.x = 0;
 	GyroIntegError.y = 0;
 	GyroIntegError.z = 0;
@@ -48,85 +45,97 @@ void imu_rest(void)
 }
 
 
-void GetAngle(const _st_Mpu *pMpu,_st_AngE *pAngE, float dt) 
-{		
+void GetAngle(const _st_Mpu *pMpu,_st_AngE *pAngE, float dt)
+{
 volatile struct V Gravity,Acc,Gyro,AccGravity;
 
 
 	static  float KpDef = 0.5f ;
 	static  float KiDef = 0.0003f;
-//		static  float KiDef = 0.00001f;
-	
+
 	float q0_t,q1_t,q2_t,q3_t;
-  //float NormAcc;	
-	float NormQuat; 
+	float NormQuat;
 	float HalfTime = dt * 0.5f;
 
-	
 
-	// ÌáÈ¡µÈÐ§Ðý×ª¾ØÕóÖÐµÄÖØÁ¦·ÖÁ¿ 
-	Gravity.x = 2*(NumQ.q1 * NumQ.q3 - NumQ.q0 * NumQ.q2);								
-	Gravity.y = 2*(NumQ.q0 * NumQ.q1 + NumQ.q2 * NumQ.q3);						  
-	Gravity.z = 1-2*(NumQ.q1 * NumQ.q1 + NumQ.q2 * NumQ.q2);	
-	// ¼ÓËÙ¶È¹éÒ»»¯
+
+	// èŽ·å–ç­‰æ•ˆæ—‹è½¬çŸ©é˜µä¸­çš„é‡åŠ›åˆ†é‡
+	Gravity.x = 2*(NumQ.q1 * NumQ.q3 - NumQ.q0 * NumQ.q2);
+	Gravity.y = 2*(NumQ.q0 * NumQ.q1 + NumQ.q2 * NumQ.q3);
+	Gravity.z = 1-2*(NumQ.q1 * NumQ.q1 + NumQ.q2 * NumQ.q2);
+	// åŠ é€Ÿåº¦å½’ä¸€åŒ–
  NormAcc = Q_rsqrt(squa(MPU6050.accX)+ squa(MPU6050.accY) +squa(MPU6050.accZ));
-	
+
     Acc.x = pMpu->accX * NormAcc;
     Acc.y = pMpu->accY * NormAcc;
-    Acc.z = pMpu->accZ * NormAcc;	
- 	//ÏòÁ¿²î³ËµÃ³öµÄÖµ
+    Acc.z = pMpu->accZ * NormAcc;
+ 	//å‘é‡å‰ä¹˜å¾—å‡ºè¯¯å·®
 	AccGravity.x = (Acc.y * Gravity.z - Acc.z * Gravity.y);
 	AccGravity.y = (Acc.z * Gravity.x - Acc.x * Gravity.z);
 	AccGravity.z = (Acc.x * Gravity.y - Acc.y * Gravity.x);
-	//ÔÙ×ö¼ÓËÙ¶È»ý·Ö²¹³¥½ÇËÙ¶ÈµÄ²¹³¥Öµ
+	//è¯¯å·®åŠ é€Ÿåº¦ç§¯åˆ†å¾—å‡ºé™€èžºä»ªçš„åå·®å€¼
     GyroIntegError.x += AccGravity.x * KiDef;
     GyroIntegError.y += AccGravity.y * KiDef;
     GyroIntegError.z += AccGravity.z * KiDef;
-	//½ÇËÙ¶ÈÈÚºÏ¼ÓËÙ¶È»ý·Ö²¹³¥Öµ
-    Gyro.x = pMpu->gyroX * Gyro_Gr + KpDef * AccGravity.x  +  GyroIntegError.x;//»¡¶ÈÖÆ
+	//è§’é€Ÿåº¦èžåˆåŠ é€Ÿåº¦ç§¯åˆ†åå·®å€¼
+    Gyro.x = pMpu->gyroX * Gyro_Gr + KpDef * AccGravity.x  +  GyroIntegError.x;
     Gyro.y = pMpu->gyroY * Gyro_Gr + KpDef * AccGravity.y  +  GyroIntegError.y;
-    Gyro.z = pMpu->gyroZ * Gyro_Gr + KpDef * AccGravity.z  +  GyroIntegError.z;		
-	// Ò»½×Áú¸ñ¿âËþ·¨, ¸üÐÂËÄÔªÊý
+    Gyro.z = pMpu->gyroZ * Gyro_Gr + KpDef * AccGravity.z  +  GyroIntegError.z;
+	// ä¸€é˜¶é¾™æ ¼åº“å¡”æ³•, æ›´æ–°å››å…ƒæ•°
 
 	q0_t = (-NumQ.q1*Gyro.x - NumQ.q2*Gyro.y - NumQ.q3*Gyro.z) * HalfTime;
 	q1_t = ( NumQ.q0*Gyro.x - NumQ.q3*Gyro.y + NumQ.q2*Gyro.z) * HalfTime;
 	q2_t = ( NumQ.q3*Gyro.x + NumQ.q0*Gyro.y - NumQ.q1*Gyro.z) * HalfTime;
 	q3_t = (-NumQ.q2*Gyro.x + NumQ.q1*Gyro.y + NumQ.q0*Gyro.z) * HalfTime;
-	
+
 	NumQ.q0 += q0_t;
 	NumQ.q1 += q1_t;
 	NumQ.q2 += q2_t;
 	NumQ.q3 += q3_t;
-	// ËÄÔªÊý¹éÒ»»¯
+	// å››å…ƒæ•°å½’ä¸€åŒ–
 	NormQuat = Q_rsqrt(squa(NumQ.q0) + squa(NumQ.q1) + squa(NumQ.q2) + squa(NumQ.q3));
 	NumQ.q0 *= NormQuat;
 	NumQ.q1 *= NormQuat;
 	NumQ.q2 *= NormQuat;
-	NumQ.q3 *= NormQuat;	
-	
+	NumQ.q3 *= NormQuat;
 
-		// ËÄÔªÊý×ªÅ·À­½Ç
+
+		// å››å…ƒæ•°è½¬æ¬§æ‹‰è§’
 	{
-		 
+
 			#ifdef	YAW_GYRO
 			*(
 		float *)pAngE = atan2f(2 * NumQ.q1 *NumQ.q2 + 2 * NumQ.q0 * NumQ.q3, 1 - 2 * NumQ.q2 *NumQ.q2 - 2 * NumQ.q3 * NumQ.q3) * RtA;  //yaw
 			#else
 				float yaw_G = pMpu->gyroZ * Gyro_G;
-				if((yaw_G > 1.0f) || (yaw_G < -1.0f)) //Êý¾ÝÌ«Ð¡¿ÉÒÔÈÏÎªÊÇ¸ÉÈÅ£¬²»ÊÇÆ«º½¶¯×÷
+				if((yaw_G > 1.0f) || (yaw_G < -1.0f))
 				{
-					pAngE->yaw  += yaw_G * dt;			
+					pAngE->yaw  += yaw_G * dt;
 				}
 			#endif
-			pAngE->pitch  =  asin(2 * NumQ.q0 *NumQ.q2 - 2 * NumQ.q1 * NumQ.q3) * RtA;						
-		
-			pAngE->roll	= atan2(2 * NumQ.q2 *NumQ.q3 + 2 * NumQ.q0 * NumQ.q1, 1 - 2 * NumQ.q1 *NumQ.q1 - 2 * NumQ.q2 * NumQ.q2) * RtA;	//PITCH 			
-	}
+			pAngE->pitch  =  asin(2 * NumQ.q0 *NumQ.q2 - 2 * NumQ.q1 * NumQ.q3) * RtA;
+
+			pAngE->roll	= atan2(2 * NumQ.q2 *NumQ.q3 + 2 * NumQ.q0 * NumQ.q1, 1 - 2 * NumQ.q1 *NumQ.q1 - 2 * NumQ.q2 * NumQ.q2) * RtA;
+		}
+		// Zè½´åž‚ç›´æ–¹å‘ä¸Šçš„åŠ é€Ÿåº¦ï¼ˆç”¨äºŽé«˜åº¦ä¼°è®¡ï¼‰
+		{
+			float vecxZ = 2 * NumQ.q1 * NumQ.q3 - 2 * NumQ.q0 * NumQ.q2;
+			float vecyZ = 2 * NumQ.q2 * NumQ.q3 + 2 * NumQ.q0 * NumQ.q1;
+			float veczZ = 1 - 2 * NumQ.q1 * NumQ.q1 - 2 * NumQ.q2 * NumQ.q2;
+			NormAccz = pMpu->accX * vecxZ + pMpu->accY * vecyZ + pMpu->accZ * veczZ;
+		}
 }
 
+#include "kalman.h"
+
+float GetNormAccz(void)
+{
+	{
+		static struct _1_ekf_filter ekf = {0.02,0,0,0,0.001,0.0};
+		kalman_1(&ekf,(float)NormAccz);
+		NormAccz = (float)ekf.out;
+	}
+	return NormAccz;
+}
 
 /***************************************************END OF FILE***************************************************/
-
-
-
-

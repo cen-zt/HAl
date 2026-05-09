@@ -55,6 +55,7 @@ diandeng\mpu6050.o: ../HAL/Remote.h
 diandeng\mpu6050.o: ../HAL/control.h
 diandeng\mpu6050.o: ../MATH/pid.h
 diandeng\mpu6050.o: D:\keil\ARM\ARMCC\Bin\..\include\stdbool.h
+diandeng\mpu6050.o: ../HARDWARE/flow.h
 diandeng\mpu6050.o: ../MATH/myMath.h
 diandeng\mpu6050.o: ../CONFIG/USB_HID.h
 diandeng\mpu6050.o: D:\keil\ARM\ARMCC\Bin\..\include\string.h

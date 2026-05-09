@@ -54,6 +54,7 @@ diandeng\scheduler.o: ../HAL/Remote.h
 diandeng\scheduler.o: ../HAL/control.h
 diandeng\scheduler.o: ../MATH/pid.h
 diandeng\scheduler.o: D:\keil\ARM\ARMCC\Bin\..\include\stdbool.h
+diandeng\scheduler.o: ../HARDWARE/flow.h
 diandeng\scheduler.o: ../MATH/myMath.h
 diandeng\scheduler.o: ../CONFIG/USB_HID.h
 diandeng\scheduler.o: ..\USER\scheduler.h
